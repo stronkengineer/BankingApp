@@ -1,0 +1,66 @@
+const accModel=require('../models/account');
+const userModel=require('../models/user');
+
+async function createUser(username,password,fullName)
+{
+    const newUser=new userModel({
+        username,
+        password,
+        fullName,
+    });
+    return await newUser.save();
+}
+
+
+async function getUserById(userId)
+{
+    return await userModel.findById(userId);
+}
+
+async function updateUser(userId,updatedData)
+{
+    return await userModel.findByIdAndUpdate(userId,updatedData,{new:true});
+}
+
+async function deleteUser(userId)
+{
+    return await userModel.findByIdAndDelete(userId);
+}
+
+async function getAccountBalance(userId)
+{
+    const account=await accModel.findOne({user:userId});
+    return account ? account.balance:0;
+}
+
+async function updateAccountBalance(userId,amount)
+{
+    await accModel.updateOne({user:userId},{$inc:{balance:amount}});
+}
+async function makeTransaction(senderId,recieverId,amount)
+{
+    try {
+        const sender = await userModel.findById(senderId);
+        const receiver = await userModel.findById(receiverId);
+    
+        if (!sender || !receiver) {
+          throw new Error('Invalid sender/receiver');
+        }
+    
+        const senderBalance = await accModel.getAccountBalance(senderId);
+        const overdraftLimit = sender.overdraftLimit || 0;
+    
+        if (senderBalance + overdraftLimit < amount) {
+          throw new Error('Insufficient funds (including overdraft)');
+        }
+    
+        await updateAccountBalance(senderId, -amount);
+        await updateAccountBalance(receiverId, amount);
+    
+        return 'Transaction successful';
+      } catch (error) {
+        throw error;
+      }
+    }
+
+module.exports={createUser, getUserById, updateUser, deleteUser, makeTransaction,getAccountBalance, updateAccountBalance};
