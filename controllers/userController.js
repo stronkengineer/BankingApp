@@ -1,10 +1,10 @@
-// routers/userRouter.js
+
 
 const express = require('express');
 const passport = require('passport');
 const UserService = require('../services/bankingService');
 
-class UserRouter {
+class UserController {
   constructor() {
     this.router = express.Router();
     this.initializeRoutes();
@@ -17,14 +17,6 @@ class UserRouter {
     this.router.delete('/:userId', this.deleteUser.bind(this));
     this.router.post('/transaction', this.makeTransaction.bind(this));
   }
-
-  ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-      return next();
-    }
-    res.status(401).json({ message: 'Unauthorized' });
-  }
-
 
   async createUser(req, res) {
     try {
@@ -78,5 +70,4 @@ class UserRouter {
   }
 }
 
-
-module.exports = new UserRouter().router;
+module.exports = new UserController().router;

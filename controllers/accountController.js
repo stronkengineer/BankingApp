@@ -1,10 +1,8 @@
-// routers/accountRouter.js
 
 const express = require('express');
-const passport = require('passport');
 const AccountService = require('../services/bankingService');
 
-class AccountRouter {
+class AccountController {
   constructor() {
     this.router = express.Router();
     this.initializeRoutes();
@@ -13,7 +11,7 @@ class AccountRouter {
   initializeRoutes() {
     this.router.post('/create', this.createAccount.bind(this));
     this.router.get('/balance/:userId', this.getAccountBalance.bind(this));
-    // Add more routes as needed
+   
   }
 
   async createAccount(req, res) {
@@ -36,8 +34,8 @@ class AccountRouter {
     }
   }
 
-  // Add more methods for additional account-related routes
+  
 
 }
 
-module.exports = new AccountRouter().router;
+module.exports = new AccountController().router;

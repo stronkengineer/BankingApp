@@ -1,16 +1,38 @@
 const accModel=require('../models/account');
 const userModel=require('../models/user');
+const passport = require('passport');
 
-async function createUser(username,password,fullName)
-{
-    const newUser=new userModel({
-        username,
-        password,
-        fullName,
-    });
-    return await newUser.save();
+async function createUser(username, password, fullName) {
+    try {
+      const newUser = new userModel({ username, fullName });
+      await userModel.register(newUser, password); 
+      return newUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function authenticateUser(req, res, next) {
+    return passport.authenticate('local', (err, user) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.status(401).json({ message: 'Authentication failed' });
+      }
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          return next(loginErr);
+        }
+        return res.json({ message: 'Authentication successful', user });
+      });
+    })(req, res, next);
+  }
+
+async function createAccount(userId) {
+  const newAccount = new Account({ user: userId });
+  return await newAccount.save();
 }
-
 
 async function getUserById(userId)
 {
@@ -63,4 +85,4 @@ async function makeTransaction(senderId,recieverId,amount)
       }
     }
 
-module.exports={createUser, getUserById, updateUser, deleteUser, makeTransaction,getAccountBalance, updateAccountBalance};
+module.exports={createUser, getUserById, updateUser, deleteUser, makeTransaction,getAccountBalance, updateAccountBalance,authenticateUser, createAccount };
